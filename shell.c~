@@ -120,16 +120,30 @@ int shell (int argc, char *argv[]) {
   printf("%s running as PID %d under %d\n",argv[0],pid,ppid);
 
   lineNum=0;
-  fprintf(stdout, "%d %s: ", lineNum, getcwd(dir, 200));
+  getcwd(dir, 200);
+  fprintf(stdout, "%d %s: ", lineNum,dir);
   while ((s = freadln(stdin))){
     t = getToks(s); /* break the line into tokens */
     fundex = lookup(t[0]); /* Is first token a shell literal */
     if(fundex >= 0) cmd_table[fundex].fun(&t[1]);
     else {
-      fprintf(stdout, "This shell only supports built-ins. Replace this to run programs as commands.\n");
+      pid=fork();
+    if(pid<0){
+   	printf("sdfa");
     }
-    lineNum=lineNum+1;
-    fprintf(stdout, "%d %s: ", lineNum, getcwd(dir, 200));
+   if(pid==0){
+    	//fprintf(stdout, "This shell only supports built-ins. Replace this to run programs as commands.\n");
+        cpid =getpid();
+   	execv(t[0], t);
+  	//exit(0);
+   	
+     // fprintf(stdout, "This shell only supports built-ins. Replace this to run programs as commands.\n");
+    }
+    wait(NULL);
   }
-  return 0;
+   lineNum=lineNum+1;
+    fprintf(stdout, "%d %s: ", lineNum, dir);
+   
+  }
+   return 0;
 }
